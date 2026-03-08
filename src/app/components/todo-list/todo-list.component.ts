@@ -14,6 +14,7 @@ export class TodoListComponent implements OnInit {
   // グリッド準備完了時にAPIを取得
   onGridReady(params: any) {
     this.gridApi = params.api;
+    this.loadTodos(); // 準備ができたらデータを読み込む
   }
 
   // 選択されているか確認（ボタンの活性制御用）
@@ -86,6 +87,13 @@ export class TodoListComponent implements OnInit {
     </div>
   `;
 
+  // Loading表示用テンプレート
+  loadingTemplate = `
+    <div style="padding: 20px; text-align: center;">
+      <span class="ag-overlay-loading-center">読み込み中...</span>
+    </div>
+  `;
+
   todos: Todo[] = [];
 
   constructor(private todoService: TodoService) { }
@@ -138,7 +146,21 @@ export class TodoListComponent implements OnInit {
     }
   }
 
-  loadTodos(): void {
-    this.todoService.getTodos().subscribe(data => this.todos = data);
+loadTodos(): void {
+    // 1. Loadingオーバーレイを表示
+    this.gridApi.showLoadingOverlay();
+
+    this.todoService.getTodos().subscribe({
+      next: (data) => {
+        this.todos = data;
+        // 2. 成功したらオーバーレイを非表示
+        this.gridApi.hideOverlay();
+      },
+      error: (err) => {
+        console.error('取得失敗', err);
+        // 3. エラー時もオーバーレイを非表示にしないとずっと表示されたままになるので注意！
+        this.gridApi.hideOverlay();
+      }
+    });
   }
 }
