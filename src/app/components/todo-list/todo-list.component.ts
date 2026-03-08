@@ -39,6 +39,14 @@ export class TodoListComponent implements OnInit {
     }
   ];
 
+  // 表示するテンプレートを定義
+  noRowsTemplate = `
+    <div style="padding: 20px; text-align: center; color: #666; font-size: 14px;">
+      <p>まだTodoはありません。</p>
+      <p>新しいタスクを追加しましょう！</p>
+    </div>
+  `;
+
   todos: Todo[] = [];
 
   constructor(private todoService: TodoService) { }
