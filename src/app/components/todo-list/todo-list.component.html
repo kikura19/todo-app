@@ -1,0 +1,14 @@
+<div class="todo-container">
+  <h2>Todoリスト</h2>
+
+  <ul *ngIf="todos.length > 0; else noData">
+    <li *ngFor="let todo of todos">
+      <input type="checkbox" [checked]="todo.isCompleted" disabled>
+      {{ todo.task }}
+    </li>
+  </ul>
+
+  <ng-template #noData>
+    <p>現在、Todoはありません。</p>
+  </ng-template>
+</div>
