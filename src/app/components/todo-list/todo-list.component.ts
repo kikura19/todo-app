@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ColDef } from 'ag-grid-community';
 import { Todo } from 'src/app/models/todo.model';
 import { TodoService } from 'src/app/services/todo.service';
 
@@ -8,6 +9,12 @@ import { TodoService } from 'src/app/services/todo.service';
   styleUrls: ['./todo-list.component.css']
 })
 export class TodoListComponent implements OnInit {
+
+  columnDefs: ColDef[] = [
+    { field: 'id', width: 100 },
+    { field: 'task', flex: 1 },
+    { field: 'isCompleted', headerName: 'Status', width: 150 }
+  ]
 
  todos: Todo[] = [];
 
