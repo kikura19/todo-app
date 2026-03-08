@@ -16,6 +16,16 @@ export class TodoService {
     return this.http.get<Todo[]>(`${this.apiUrl}/todos`);
   }
 
+  // 削除用API
+  deleteTodo(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/todos/${id}`);
+  }
+
+  // 更新用API
+  updateTodo(todo: Todo): Observable<Todo> {
+    return this.http.put<Todo>(`${this.apiUrl}/todos`, todo);
+  }
+
   addTodo(todo: Todo): Observable<Todo> {
     return this.http.post<Todo>(`${this.apiUrl}/todos`, todo);
   }
