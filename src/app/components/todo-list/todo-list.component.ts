@@ -12,7 +12,12 @@ export class TodoListComponent implements OnInit {
 
   columnDefs: ColDef[] = [
     { headerName: 'ID', field: 'id', width: 80 },
-    { headerName: 'タスク内容', field: 'task', flex: 1 }, // flexで幅を自動調整
+    {
+      headerName: 'タスク内容',
+      field: 'task',
+      flex: 1,
+      editable: true
+    }, // flexで幅を自動調整
     {
       headerName: '完了',
       field: 'isCompleted',
@@ -47,6 +52,14 @@ export class TodoListComponent implements OnInit {
       error: (err) => console.log('エラー発生', err)
     })
   }
+
+  onCellValueChanged(params: any): void {
+  const updatedTodo = params.data; // 更新された行データ
+  this.todoService.updateTodo(updatedTodo).subscribe({
+    next: () => console.log('更新成功！'),
+    error: (err) => console.error('更新失敗', err)
+  });
+}
 
   // 削除ボタンが押された時の処理
   onDelete(id: number): void {
