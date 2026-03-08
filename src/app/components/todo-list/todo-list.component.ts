@@ -98,25 +98,25 @@ export class TodoListComponent implements OnInit {
     }
   }
 
-  // 一括削除処理
-  onDeleteSelected() {
-    const selectedRows = this.gridApi.getSelectedRows();
-    if (selectedRows.length === 0) return;
+onDeleteSelected() {
+  const selectedRows = this.gridApi.getSelectedRows();
+  if (selectedRows.length === 0) return;
 
-    if (confirm(`${selectedRows.length} 件のタスクを削除しますか？`)) {
-      // 選択された各行のIDを取得して削除APIを叩く
-      // 並列処理（forkJoin）を使うと高速です
-      import('rxjs').then(rxjs => {
-        const deleteObservables = selectedRows.map((row: any) => 
-          this.todoService.deleteTodo(row.id)
-        );
-        
-        rxjs.forkJoin(deleteObservables).subscribe(() => {
-          this.loadTodos(); // 完了後にリストを再読み込み
-        });
-      });
-    }
+  if (confirm(`${selectedRows.length} 件のタスクを削除しますか？`)) {
+    // 1. 選択行からIDの配列だけを抽出 [1, 2, 3] のような形にする
+    const ids = selectedRows.map((row: any) => row.id);
+    
+    // 2. 一括削除APIを1回だけ叩く
+    this.todoService.deleteTodosBatch(ids).subscribe({
+      next: () => {
+        this.loadTodos(); // 完了後に画面リフレッシュ
+      },
+      error: (err) => {
+        console.error('削除失敗', err);
+      }
+    });
   }
+}
 
   loadTodos(): void {
     this.todoService.getTodos().subscribe(data => this.todos = data);

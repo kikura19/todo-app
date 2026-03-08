@@ -12,13 +12,18 @@ export class TodoService {
 
   constructor(private http: HttpClient) { }
 
-  getTodos(): Observable<Todo[]>{
+  getTodos(): Observable<Todo[]> {
     return this.http.get<Todo[]>(`${this.apiUrl}/todos`);
   }
 
   // 削除用API
   deleteTodo(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/todos/${id}`);
+  }
+
+  // バッチ削除APIを叩くメソッド
+  deleteTodosBatch(ids: number[]): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/todos/batch-delete`, ids);
   }
 
   // 更新用API
