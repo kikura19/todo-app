@@ -23,13 +23,13 @@ export class TodoListComponent implements OnInit {
 
   columnDefs: ColDef[] = [
     {
-    headerName: '',        // ヘッダー名は空でOK
-    field: 'checkbox',     // 内部識別用
-    width: 50,             // チェックボックス用の狭い幅
-    checkboxSelection: true,         // 各行にチェックボックスを表示
-    headerCheckboxSelection: true,  // ヘッダーにも「全選択」チェックボックスを表示
-    pinned: 'left'         // 念のため左端に固定（スクロールしても消えないように）
-  },
+      headerName: '',        // ヘッダー名は空でOK
+      field: 'checkbox',     // 内部識別用
+      width: 50,             // チェックボックス用の狭い幅
+      checkboxSelection: true,         // 各行にチェックボックスを表示
+      headerCheckboxSelection: true,  // ヘッダーにも「全選択」チェックボックスを表示
+      pinned: 'left'         // 念のため左端に固定（スクロールしても消えないように）
+    },
     { headerName: 'ID', field: 'id', width: 80 },
     {
       headerName: 'タスク内容',
@@ -38,11 +38,21 @@ export class TodoListComponent implements OnInit {
       editable: true
     }, // flexで幅を自動調整
     {
-      headerName: '完了',
+      headerName: 'ステータス',
       field: 'isCompleted',
-      width: 150,
-      cellRenderer: (params: any) => {
-        return params.value ? '✅ 完了' : '⏳ 未完了'; // 簡単な条件分岐
+      editable: true,
+      cellEditor: 'agSelectCellEditor',
+      cellEditorParams: {
+        values: [true, false], // プルダウンの選択肢
+      },
+      // 表示を見やすくするためのフォーマッター
+      valueFormatter: (params) => {
+        return params.value ? '✅ 完了' : '⏳ 未完了';
+      },
+      // 選択肢の表示名をカスタマイズ（オプション）
+      valueParser: (params) => {
+        // 必要に応じて型変換の制御が可能
+        return params.newValue === 'true';
       }
     },
     {
@@ -98,25 +108,25 @@ export class TodoListComponent implements OnInit {
     }
   }
 
-onDeleteSelected() {
-  const selectedRows = this.gridApi.getSelectedRows();
-  if (selectedRows.length === 0) return;
+  onDeleteSelected() {
+    const selectedRows = this.gridApi.getSelectedRows();
+    if (selectedRows.length === 0) return;
 
-  if (confirm(`${selectedRows.length} 件のタスクを削除しますか？`)) {
-    // 1. 選択行からIDの配列だけを抽出 [1, 2, 3] のような形にする
-    const ids = selectedRows.map((row: any) => row.id);
-    
-    // 2. 一括削除APIを1回だけ叩く
-    this.todoService.deleteTodosBatch(ids).subscribe({
-      next: () => {
-        this.loadTodos(); // 完了後に画面リフレッシュ
-      },
-      error: (err) => {
-        console.error('削除失敗', err);
-      }
-    });
+    if (confirm(`${selectedRows.length} 件のタスクを削除しますか？`)) {
+      // 1. 選択行からIDの配列だけを抽出 [1, 2, 3] のような形にする
+      const ids = selectedRows.map((row: any) => row.id);
+
+      // 2. 一括削除APIを1回だけ叩く
+      this.todoService.deleteTodosBatch(ids).subscribe({
+        next: () => {
+          this.loadTodos(); // 完了後に画面リフレッシュ
+        },
+        error: (err) => {
+          console.error('削除失敗', err);
+        }
+      });
+    }
   }
-}
 
   loadTodos(): void {
     this.todoService.getTodos().subscribe(data => this.todos = data);
