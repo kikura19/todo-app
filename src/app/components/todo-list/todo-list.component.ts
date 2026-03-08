@@ -108,13 +108,37 @@ export class TodoListComponent implements OnInit {
     })
   }
 
-  onCellValueChanged(params: any): void {
-    const updatedTodo = params.data; // 更新された行データ
-    this.todoService.updateTodo(updatedTodo).subscribe({
-      next: () => console.log('更新成功！'),
-      error: (err) => console.error('更新失敗', err)
+onCellValueChanged(params: any) {
+  const data = params.data;
+  
+  if (!data.id) {
+    // 新規作成時はIDがnullなのでPOST
+    this.todoService.addTodo(data).subscribe(newTodo => {
+      // 重要：APIから返ってきた「IDが入ったデータ」でグリッドを更新する
+      params.data.id = newTodo.id; 
+      
+      // グリッドに「データが変わったよ」と通知して再描画させる
+      this.gridApi.refreshCells({ rowNodes: [params.node] });
+      console.log('新規作成成功！ID:', newTodo.id);
     });
+  } else {
+    // 更新時はPUT
+    this.todoService.updateTodo(data).subscribe();
   }
+}
+
+  addNewTask() {
+  const newTodo = { id: null, task: '', isCompleted: false }; // 空のタスクを作成
+  this.todos = [newTodo, ...this.todos]; // 配列の先頭に追加
+  
+  // 少し遅らせてから編集モードを起動（DOM反映待ち）
+  setTimeout(() => {
+    this.gridApi.startEditingCell({
+      rowIndex: 0,
+      colKey: 'task'
+    });
+  }, 0);
+}
 
   // 削除ボタンが押された時の処理
   onDelete(id: number): void {
