@@ -8,9 +8,14 @@
         [overlayNoRowsTemplate]="noRowsTemplate" [rowSelection]="'multiple'" [rowMultiSelectWithClick]="true"
         (gridReady)="onGridReady($event)" [overlayLoadingTemplate]="loadingTemplate"> </ag-grid-angular>
 
-<div style="margin-bottom: 10px;">
-  <button (click)="addNewTask()">+ 新規追加</button>
-  <button (click)="onDeleteSelected()">選択したタスクを削除</button>
-</div>
+    <div style="margin-bottom: 10px;">
+        <button mat-raised-button color="primary" (click)="addNewTask()">
+            + 新規追加
+        </button>
+
+        <button mat-raised-button color="warn" (click)="onDeleteSelected()" [disabled]="!hasSelection()">
+            選択したタスクを削除
+        </button>
+    </div>
 
 </div>
