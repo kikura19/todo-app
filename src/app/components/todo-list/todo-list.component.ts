@@ -35,7 +35,17 @@ export class TodoListComponent implements OnInit {
       headerName: 'タスク内容',
       field: 'task',
       flex: 1,
-      editable: true
+      editable: true,
+      valueSetter: (params) => {
+        // 空文字や空白だけの入力は拒否
+        if (params.newValue && params.newValue.trim().length > 0) {
+          params.data.task = params.newValue;
+          return true; // 編集を確定させる
+        }
+        // 拒否してアラートを表示
+        alert('タスク名は必須です！');
+        return false; // 編集を確定させない（キャンセル）
+      }
     }, // flexで幅を自動調整
     {
       headerName: 'ステータス',
