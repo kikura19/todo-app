@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ColDef, ICellRendererParams } from 'ag-grid-community';
+import { error } from 'console';
 import { Todo } from 'src/app/models/todo.model';
 import { TodoService } from 'src/app/services/todo.service';
 
@@ -94,6 +95,8 @@ export class TodoListComponent implements OnInit {
     </div>
   `;
 
+
+
   todos: Todo[] = [];
 
   constructor(private todoService: TodoService) { }
@@ -108,44 +111,53 @@ export class TodoListComponent implements OnInit {
     })
   }
 
-onCellValueChanged(params: any) {
-  const data = params.data;
-  
-  if (!data.id) {
-    // 新規作成時はIDがnullなのでPOST
-    this.todoService.addTodo(data).subscribe(newTodo => {
-      // 重要：APIから返ってきた「IDが入ったデータ」でグリッドを更新する
-      params.data.id = newTodo.id; 
-      
-      // グリッドに「データが変わったよ」と通知して再描画させる
-      this.gridApi.refreshCells({ rowNodes: [params.node] });
-      console.log('新規作成成功！ID:', newTodo.id);
+  onCellValueChanged(params: any) {
+    const data = params.data;
+
+    if (!data.id) {
+      // 新規作成時はIDがnullなのでPOST
+      this.todoService.addTodo(data).subscribe({
+        next: (newTodo: Todo) => {
+        // 重要：APIから返ってきた「IDが入ったデータ」でグリッドを更新する
+        params.data.id = newTodo.id;
+
+        // グリッドに「データが変わったよ」と通知して再描画させる
+        this.gridApi.refreshCells({ rowNodes: [params.node] });
+        console.log('新規作成成功！ID:', newTodo.id);
+      },
+      error: (err) =>{
+        alert(err.message)
+      }
     });
-  } else {
-    // 更新時はPUT
-    this.todoService.updateTodo(data).subscribe();
+    } else {
+      // 更新時はPUT
+      this.todoService.updateTodo(data).subscribe();
+    }
   }
-}
 
   addNewTask() {
-  const newTodo = { id: null, task: '', isCompleted: false }; // 空のタスクを作成
-  this.todos = [newTodo, ...this.todos]; // 配列の先頭に追加
-  
-  // 少し遅らせてから編集モードを起動（DOM反映待ち）
-  setTimeout(() => {
-    this.gridApi.startEditingCell({
-      rowIndex: 0,
-      colKey: 'task'
-    });
-  }, 0);
-}
+    const newTodo = { id: null, task: '', isCompleted: false }; // 空のタスクを作成
+    this.todos = [newTodo, ...this.todos]; // 配列の先頭に追加
+
+    // 少し遅らせてから編集モードを起動（DOM反映待ち）
+    setTimeout(() => {
+      this.gridApi.startEditingCell({
+        rowIndex: 0,
+        colKey: 'task'
+      });
+    }, 0);
+  }
 
   // 削除ボタンが押された時の処理
   onDelete(id: number): void {
     if (confirm('本当に削除しますか？')) {
-      this.todoService.deleteTodo(id).subscribe(() => {
-        // 削除成功したらリストを再読み込み
-        this.loadTodos();
+      this.todoService.deleteTodo(id).subscribe({
+        next: () => {
+          this.loadTodos(); // 完了後に画面リフレッシュ
+        },
+        error: (err) => {
+          alert(err.message);
+        }
       });
     }
   }
@@ -164,13 +176,13 @@ onCellValueChanged(params: any) {
           this.loadTodos(); // 完了後に画面リフレッシュ
         },
         error: (err) => {
-          console.error('削除失敗', err);
+          alert(err.message);
         }
       });
     }
   }
 
-loadTodos(): void {
+  loadTodos(): void {
     // 1. Loadingオーバーレイを表示
     this.gridApi.showLoadingOverlay();
 
@@ -181,9 +193,16 @@ loadTodos(): void {
         this.gridApi.hideOverlay();
       },
       error: (err) => {
-        console.error('取得失敗', err);
-        // 3. エラー時もオーバーレイを非表示にしないとずっと表示されたままになるので注意！
-        this.gridApi.hideOverlay();
+        // 1. ユーザーへアラート（実務ではSnackBarやDialogが理想）
+        alert(err.message);
+
+        // 2. ローディング表示を消す（これを忘れると画面が固まって見える）
+        this.gridApi?.hideOverlay();
+
+        // 3. 必要に応じて「データなし」用の表示に切り替え
+        if (this.todos.length === 0) {
+          this.gridApi?.showNoRowsOverlay();
+        }
       }
     });
   }

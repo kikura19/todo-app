@@ -60,4 +60,20 @@ describe('TodoListComponent', () => {
     expect(window.confirm).toHaveBeenCalled();
     expect(todoServiceSpy.deleteTodo).toHaveBeenCalledWith(1);
   });
+
+  it('グリッドに Todo データが表示されていること', async () => {
+  // 1. データをセットして反映を待つ
+  const dummyTodos = [{ id: 1, task: 'テストタスク', isCompleted: false }];
+  todoServiceSpy.getTodos.and.returnValue(of(dummyTodos));
+  
+  fixture.detectChanges(); // ngOnInit 実行
+  await fixture.whenStable(); // 非同期処理の完了を待つ
+
+  // 2. DOMからセルの内容を取得
+  const compiled = fixture.nativeElement as HTMLElement;
+  const cell = compiled.querySelector('.ag-cell[col-id="task"]');
+
+  // 3. 検証
+  expect(cell?.textContent).toContain('テストタスク');
+});
 });
