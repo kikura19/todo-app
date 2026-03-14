@@ -1,0 +1,29 @@
+::ng-deep .disabled-cell { background-color: #eee2e2; color: #999; cursor: not-allowed; }
+
+/* 選択された行全体の枠線を定義 */
+::ng-deep .ag-row-selected {
+  /* 上下の境界線を太く・濃い色にする */
+  border-top: 2px solid #007bff !important;
+  border-bottom: 2px solid #007bff !important;
+  z-index: 10; /* 前の行や次の行の線に隠れないように調整 */
+}
+
+/* 選択行の左端（チェックボックス側）に縦線を追加 */
+::ng-deep .ag-row-selected .ag-cell:first-child {
+  border-left: 2px solid #007bff !important;
+}
+
+/* 選択行の右端に縦線を追加 */
+::ng-deep .ag-row-selected .ag-cell:last-child {
+  border-right: 2px solid #007bff !important;
+}
+
+/* 選択時の背景色も、ピンクと混ざっても見やすい色に調整（必要に応じて） */
+::ng-deep .ag-row-selected::before {
+  background-color: rgba(0, 123, 255, 0.1) !important;
+}
+
+/* 現在フォーカスされているセルの枠線を調整 */
+::ng-deep .ag-cell-focus {
+  border: 2px solid #0056b3 !important;
+}

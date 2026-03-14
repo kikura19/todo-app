@@ -10,11 +10,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DeleteButtonRendererComponent } from './components/renderers/delete-button-renderer/delete-button-renderer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TodoListComponent
+    TodoListComponent,
+    DeleteButtonRendererComponent
   ],
   imports: [
     BrowserAnimationsModule, // アニメーションを有効化
